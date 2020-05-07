@@ -28,6 +28,8 @@ import org.bson.Document;
 import com.google.gson.Gson;
 
 import com.ia.movies.clases.Movie;
+import com.ia.movies.clases.MovieDisplay;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -40,149 +42,48 @@ public class App extends Application
 {
     VBox contenedor_peliculas = new VBox();
     MongoClient mongo_client = null;
+    List<MovieDisplay> a_desplegar = new ArrayList();
 
     @Override
     public void start(Stage stage) {
         stage.setTitle("Recomendacion de peliculas");
-        List<Movie> peliculas = getMovies();
         
-        TableView<Movie> tabla = new TableView<Movie>();
-        tabla.setEditable(false);
-
-        TableColumn<Movie, String> title = new TableColumn<Movie, String>("Title");
-        title.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(param.getValue().title);
-                }
-            }
-        );
-        TableColumn<Movie, String> duration = new TableColumn<Movie, String>("Duration");
-        duration.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(String.valueOf(param.getValue().duration));
-                }
-            }
-        );
-        TableColumn<Movie, Integer> year = new TableColumn<Movie, Integer>("Year");
-        year.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,Integer>,ObservableValue<Integer>>(){
-            
-                @Override
-                public ObservableValue<Integer> call(CellDataFeatures<Movie, Integer> param) {
-                    return new ReadOnlyObjectWrapper(param.getValue().year);
-                }
-            }
-        );
-        TableColumn<Movie, String> color = new TableColumn<Movie, String>("Color");
-        color.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(param.getValue().color);
-                }
-            }
-        );
-        TableColumn<Movie, String> rating = new TableColumn<Movie, String>("Rating");
-        rating.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(param.getValue().rating);
-                }
-            }
-        );
-        TableColumn<Movie, String> director = new TableColumn<Movie, String>("Director");
-        director.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(param.getValue().director);
-                }
-            }
-        );
-        TableColumn<Movie, String> language = new TableColumn<Movie, String>("Language");
-        language.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    return new ReadOnlyStringWrapper(param.getValue().language);
-                }
-            }
-        );
-        TableColumn<Movie, String> genres = new TableColumn<Movie, String>("Genres");
-        genres.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    String finalVal = "";
-                    for (String genre : param.getValue().genres) {
-                        finalVal += genre + ", ";
-                    }
-                    finalVal = finalVal.substring(0, finalVal.length() - 1);
-                    return new ReadOnlyStringWrapper(finalVal);
-                }
-            }
-        );
-        TableColumn<Movie, String> actors = new TableColumn<Movie, String>("Actors");
-        actors.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,String>,ObservableValue<String>>(){
-            
-                @Override
-                public ObservableValue<String> call(CellDataFeatures<Movie, String> param) {
-                    String finalVal = "";
-                    for (String actor : param.getValue().actores) {
-                        finalVal += actor + ", ";
-                    }
-                    finalVal = finalVal.substring(0, finalVal.length() - 1);
-                    return new ReadOnlyStringWrapper(finalVal);
-                }
-            }
-        );
-        TableColumn<Movie, Float> imdb_score = new TableColumn<Movie, Float>("IMDB Score");
-        imdb_score.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,Float>,ObservableValue<Float>>(){
-            
-                @Override
-                public ObservableValue<Float> call(CellDataFeatures<Movie, Float> param) {
-                    return new ReadOnlyObjectWrapper(String.valueOf(param.getValue().score));
-                }
-            }
-        );
-        TableColumn<Movie, Integer> facebook_likes = new TableColumn<Movie, Integer>("Facebooks likes");
-        facebook_likes.setCellValueFactory(
-            new Callback<TableColumn.CellDataFeatures<Movie,Integer>,ObservableValue<Integer>>(){
-            
-                @Override
-                public ObservableValue<Integer> call(CellDataFeatures<Movie, Integer> param) {
-                    return new ReadOnlyObjectWrapper(param.getValue().facebook_likes);
-                }
-            }
-        );
-        TableColumn<Movie, String> country = new TableColumn<Movie, String>("Country");
-
-        tabla.getColumns().addAll(title, duration, year, color, rating, director, language, genres, actors, imdb_score, facebook_likes, country);
-
-        ObservableList<Movie> movies_observable = FXCollections.observableArrayList();
-
-        for (Movie peli : peliculas) {
-            movies_observable.add(peli);
-        }
-        tabla.setItems(movies_observable);
-        HBox contenedor = new HBox(tabla);
-        Scene scene = new Scene(new StackPane(contenedor), 720, 480);
+        TableView tb = loadFirstTable();
+        System.out.println("paso esto");
+        
+        Scene scene = new Scene(new StackPane(tb), 720, 480);
         stage.setScene(scene);
         stage.show();
+    }
+
+    public TableView loadFirstTable() {
+        List<Movie> peliculas = getMovies();
+        a_desplegar = new ArrayList();
+        for (int i = 0; i < peliculas.size(); i++) {
+            if (peliculas.get(i) != null) {
+                a_desplegar.add(new MovieDisplay(peliculas.get(i)));
+            }
+        }
+        String[] titulos = {
+            "Titulo", "Director", "Año", "Generos", "Actores", 
+            "Rating", "Idioma", "Puntuación"
+        };
+        String[] nombres = {
+            "title", "director", "year", "genres", "actores", 
+            "rating", "language", "score"
+        };
+        TableView tabla = new TableView();
+        ObservableList data = FXCollections.observableList(a_desplegar);
+        tabla.setItems(data);
+        int i = 0;
+        while (i < titulos.length) {
+            TableColumn columna = new TableColumn(nombres[i]);
+            columna.setCellValueFactory(new PropertyValueFactory(nombres[i]));
+            tabla.getColumns().add(columna);
+            i++;
+        }
+        tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        return tabla;
     }
 
     public List<Movie> getMovies() {
@@ -191,7 +92,6 @@ public class App extends Application
         MongoDatabase database = mongo_client.getDatabase("movie_metadata");
         MongoCollection<Document> collection = database.getCollection("movies");
         MongoCursor<Document> cursor = collection.find().iterator();
-        System.out.println("paso esto");
         try {
             while (cursor.hasNext()) {
                 String result_string = cursor.next().toJson().toString();
