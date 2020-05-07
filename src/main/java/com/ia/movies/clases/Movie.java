@@ -31,4 +31,8 @@ public class Movie {
     public int duration;
 
     public String country;
+
+    public String getTitle() {
+        return title;
+    }
 }
