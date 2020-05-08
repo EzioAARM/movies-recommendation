@@ -2,7 +2,7 @@ package com.ia.movies.clases;
 
 import org.bson.types.ObjectId;
 
-public class Movie {
+public class Movie implements Comparable {
 
     public ObjectId _id;
 
@@ -31,4 +31,10 @@ public class Movie {
     public int duration;
 
     public String country;
+
+    @Override
+    public int compareTo(Object o) {
+        Movie pelicula = (Movie) o;
+        return pelicula.title.compareTo(this.title);
+    }
 }
